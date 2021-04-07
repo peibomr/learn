@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <style>
+    html,
+    body {
+      height: 100%;
+    }
+    #app {
+      width: 200px;
+      height: 200px;
+      background: red;
+    }
+    #arr {
+      width: 100%;
+      height: 100%;
+    }
+    /* #arr {
+      display: flex;
+    } 
+    flx布局中，margin会无限的向四个方向延申，使元素达到正中央
+    .app {
+      margin: auto;
+    } */
+    /* #arr {
+      width: 100%;
+      height: 400px;
+      在父级元素上面使用flex布局，水平居中，垂直居中
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    } */
+    /* .app {
+        当t l b r 都为0时，margin可以无限的向四个方向延申，使元素达到正中央
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      margin: auto;
+    } */
+    /* .app {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+        使元素向X,Y轴偏移自身元素的50%
+      transform: translate(-50%, -50%);
+    } */
+
+    /* .app {
+      利用定位使元素到达指定位置，此时的元素为左上角居中
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      在使用margin减去元素自身宽高的一半
+      margin-top: -100px;
+      margin-left: -100px;
+    } */
+  </style>
+  <body>
+    <div id="arr">
+      <div class="app" id="app"></div>
+    </div>
+  </body>
+</html>
