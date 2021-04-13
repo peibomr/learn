@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body></body>
+  <script>
+    // 原型链继承
+    // 实现方式：将子类的原型链指向父类的对象实例
+    // 原理：子类实例child的__proto__指向Child的原型链prototype，而Child.prototype指向Parent类的对象实例，该父类对象实例的__proto__指向Parent.prototype,所以Child可继承Parent的构造函数属性、方法和原型链属性、方法
+    // 优点：可继承构造函数的属性，父类构造函数的属性，父类原型属性
+    // 缺点：无法向构造函数传参，并且所有实例都共享父类实例的属性，如果父类共有属性为引用类型，一个子类实例改变父类共有属性时，会导致继承的共有属性发生变化
+    // var a = new Child();
+    // var b = new Child();
+    // a.list.push("b");
+    // console.log(b.list);  // ['a','b']
+    function Parent() {
+      this.name = "parent";
+      this.list = ["a"];
+    }
+    Parent.prototype.sayHi = function () {
+      console.log("原型链继承");
+    };
+    function Child() {}
+    Child.prototype = new Parent();
+    var child = new Child();
+    console.log(child);
+    child.sayHi();
+    /////////////////////////////////////////////////////////////////
+
+    // 构造函数继承
+    // 实现方法：在子类构造函数中使用call或者apply劫持父类构造函数方法，并出入参数
+    // 原理：使用call或者apply更改子类函数的作用域，使this执行父类构造函数，子类因此可以继承父类共有属性
+    // 优点：可以解决原型链继承的缺点
+    // 缺点：不可继承父类的原型链方法，构造函数不可复用
+    function Constructors(name, id) {
+      this.id = id;
+      this.name = name;
+      this.printName = function () {
+        console.log(this.name);
+      };
+    }
+    Constructors.prototype.sayName = function () {
+      console.log(this.name);
+    };
+    function ConstructorsChild(name, id) {
+      Constructors.call(this, name, id);
+    }
+    var child = new ConstructorsChild("构造函数继承", "1");
+    child.printName();
+    //child.sayName(); // error
+    ///////////////////////////////////////////////////////////////
+
+    // 组合继承
+    // 原理：综合使用构造函数继承和原型链继承
+    // 优点：可继承父类原型上的属性，并且可以传参，每个新实例引入的构造函数都是私有的
+    // 缺点：会执行两次父类的构造函数，消耗内存较大，子类的构造函数会代替原型上的那个父类构造函数
+    function CombinationParent(name, id) {
+      this.id = id;
+      this.name = name;
+      this.list = ["a"];
+      this.printName = function () {
+        console.log(this.name);
+      };
+    }
+    CombinationParent.prototype.sayName = function () {
+      console.log(this.name);
+    };
+    function CombinationChild(name, id) {
+      CombinationParent.call(this, name, id);
+    }
+    CombinationChild.prototype = new CombinationParent();
+    var child = new CombinationChild("组合继承", "1");
+    child.printName();
+    child.sayName();
+    var a = new CombinationChild();
+    var b = new CombinationChild();
+    a.list.push("b");
+    console.log(a.list);
+    console.log(b.list);
+    /////////////////////////////////////////////
+
+    // 原型式继承
+    // 原理：用一个函数包装一个对象，然后返回这个函数的调用，这个函数就变成了可以随意增添性的实例或对象，结果是将子对象的_proto_指向父对象
+    // 缺点：共享引用类型
+    var PrototypeParent = {
+      names: ["a"],
+    };
+    function copy(object) {
+      function F() {}
+      F.prototype = object;
+      return new F();
+    }
+    var child = copy(PrototypeParent);
+    console.log(child.names);
+    //////////////////////////////////////////////////
+
+    // 寄生式继承
+    // 原理：二次封装原型式并拓展
+    // 优点：可添加新的属性和方法
+    function createAnother(original) {
+      var clone = copy(original);
+      clone.sayHi = function () {
+        console.log("Hi");
+      };
+      return clone;
+    }
+    var anotherPerson = createAnother(PrototypeParent);
+    anotherPerson.sayHi();
+    ////////////////////////////////////////////////////
+
+    // 寄生组合式继承
+    // 原理：改进组合继承，利用寄生式继承的思想继承原型
+    function Person(name) {
+      this.category = "human";
+      this.legNum = 2;
+      this.name = name;
+    }
+
+    Person.prototype.sayHello = function () {
+      console.log("Hi,i am " + this.name);
+    };
+    function inherit(subType, superType) {
+      //在new inheritFn 的时候将构造函数指向子类
+      function inheritFn() {
+        this.constructor = subType;
+      }
+      inheritFn.prototype = superType.prototype;
+      //将子类的原型指向父类原型的一个副本
+      subType.prototype = new inheritFn();
+    }
+    //定义子类构造函数Pan
+    function Pan(name, age) {
+      Person.call(this, name); //借用构造函数
+      this.age = age;
+    }
+
+    //将子类Pan的原型指向父类Person原型的一个副本
+    //注意：要执行该动作后才能在Pan的prototype上定义方法，否则没用
+    inherit(Pan, Person);
+
+    Pan.prototype.sayAge = function () {
+      console.log(this.age);
+    };
+
+    //定义子类构造函数Duan
+    function Duan(name, hairColor) {
+      Person.call(this, name);
+      this.hairColor = hairColor;
+    }
+
+    inherit(Duan, Person);
+
+    Duan.prototype.showHairColor = function () {
+      console.log(this.hairColor);
+    };
+    //Pan的实例
+    var pan = new Pan("panfengshan", 27);
+    console.log(pan.name); //panfengshan
+    console.log(pan.age); //27
+    console.log(pan.category); //human
+    console.log(pan.legNum); //2
+
+    pan.sayHello(); //Hi,i am panfengshan
+    pan.sayAge(); //27
+
+    //Duan的实例
+    var duan = new Duan("duanyanan", "black");
+    console.log(duan.name); //duanyanan
+    console.log(duan.hairColor); //black
+    console.log(pan.category); //human
+    console.log(pan.legNum); //2
+
+    duan.sayHello(); //Hi,i am duanyanan
+    duan.showHairColor(); //black
+  </script>
+</html>
